@@ -151,8 +151,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         }
 
         myFrame.pack();
-        myFrame.setVisible(true);
-        System.out.println("nof instructions of 4th " + nofInstructions[3]);
+        myFrame.setVisible(true);        
 
         //init false all answersGiven
         answersGiven = new boolean[NOFQUESTIONS][NOFMODELS];
@@ -479,9 +478,10 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 //                answerChoiceText[i][j] = valuesToString(valueArray);
                 
                 //for each model take values of every assignment 
-                    
-                //go through each instruction and evaluate all values of the question
-               
+                //DONE!    
+                //go through each instruction and evaluate all values of the 
+                //question for the given model
+                
                 //output every value of this question to an array 
                 
             }
