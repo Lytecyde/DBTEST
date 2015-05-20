@@ -235,15 +235,22 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         ArrayList varname2 = new ArrayList();
 
         String abc = "abcdefghijkmnpqrstuvwxyz";
+        ArrayList abcArray = new ArrayList();
+        
+        for(int i = 0; i < abc.length(); i++){
+            abcArray.add(abc.substring(i, i + 1));
+        }
+        
         String v[] = new String[nofAssignments[n]];
         int[] integers = new int[nofAssignments[n]];
         int indexOfVariableName;
         //TODO remove repetitions
         for (int i = 0; i < nofAssignments[n]; i++) {
-            indexOfVariableName = (int) (Math.random() * abc.length());
+            indexOfVariableName = (int) (Math.random() * abcArray.size());
             //System.out.println("C4: index of letter:"+ indexOfVariableName);
-            v[i] = abc.substring(indexOfVariableName, indexOfVariableName + 1);
+            v[i] = (String)abcArray.get(indexOfVariableName);
             //System.out.println("C3: " + v[i]);
+            abcArray.remove(indexOfVariableName);
         }
         integers[0] = 10;
         for (int i = 1; i < nofAssignments[n]; i++) {
@@ -279,7 +286,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                     || (varname1.get(0).equals(varname2.get(0)))
                     || (varname1.get(1).equals(varname2.get(1))));
         }
-        //init variable defintions
+        //init variable definitions
         for (int j = 0; j < nofAssignments[n]; j++) {
             question += "int " + v[j] + " = " + integers[j] + ";";
             String[] s = new String[2];
@@ -301,10 +308,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         return question;
     }
 
-    private int getModelCode(int a, int b) {
-
-        return -1;
-    }
+   
 
 //    
 //click on answer     
@@ -329,6 +333,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             }
             taskQuestion.setText("Q" + questionPage + questions[questionPage]);
             getPage(questionPage);
+            displayAnswerChoice(questionPage);
             myFrame.repaint();
         } else if (obj == (back)) {
             if (questionPage > 0) {
@@ -338,6 +343,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             }
             taskQuestion.setText("Q" + questionPage + questions[questionPage]);
             getPage(questionPage);
+            displayAnswerChoice(questionPage);
             myFrame.repaint();
         } else if ((obj) == (ans[0])) {
             if (ans[0].isSelected()) {
@@ -448,48 +454,50 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         }
 
     }
-
-    private void convertAssignmentsToallValues() {
-        for (int i = 0; i < NOFQUESTIONS; i++) {
-            for (int k = 0; k < 3; k++) {
-                //TODO strins to values
-                String[] s = new String[2];
-                s[0] = allAssignments[i][k].substring(4, 5);
-                s[1] = allAssignments[i][k].substring(8);
-                allValues[i][k]
-                        = Value.stringToValue(s);
-            }
-        }
-    }
+//already doing that 
+//    private void convertAssignmentsToallValues() {
+//        for (int i = 0; i < NOFQUESTIONS; i++) {
+//            for (int k = 0; k < 3; k++) {
+//                //TODO strins to values
+//                String[] s = new String[2];
+//                s[0] = allAssignments[i][k].substring(4, 5);
+//                s[1] = allAssignments[i][k].substring(8);
+//                allValues[i][k]
+//                        = Value.stringToValue(s);
+//            }
+//        }
+//    }
 
     private void generateAnswerChoiceTexts() {
-
+        String[] originalValues = new String[NOFQUESTIONS];
         for (int i = 0; i < NOFQUESTIONS; i++) {
             for (int j = 0; j < NOFMODELS; j++) {
-//                Value[] valueArray = new Value[2];
+//                ArrayList ... Value valueArray = new Value[nofAssignments[i]];
 //                valueArray = model(i, allAssignments[i],  allInstructions[i] );
-//                answerChoiceText[i][j] = valuesToString(valueArray);
-
+                
+                
                 //TODO for each model take values of every assignment 
                 //DONE!    
-                //TODO go through each instruction and evaluate all values of the 
-                //question for the given model
-                for(int k = 0;k < nofInstructions[i];k++){
-                    
+                //TODO assignments by model
+                
+                originalValues[i] ="";
+                for(int k = 0;k < nofAssignments[i];k++){
+                    originalValues[i] += allValues[i][k].name + " = "+ allValues[i][k].number + ";";
                 }
+                answerChoiceText[i][j] = originalValues[i];
             }
         }
         //TODO output every value of this question to answerChoiceTexts String
     }
-
-    private void generateAllValues() {
-        for (int i = 0; i < NOFQUESTIONS; i++) {
-            for (int j = 0; j < NOFMODELS; j++) {
-                //allValues[i][j] = allAssignments[i][j];
-            }
-        }
-    }
-
+//TODO remove: done in   
+//    private void generateAllValues() {
+//        for (int i = 0; i < NOFQUESTIONS; i++) {
+//            for (int j = 0; j < NOFMODELS; j++) {
+//                //allValues[i][j] = allAssignments[i][j];
+//            }
+//        }
+//    }
+    
     
 
     private void displayAnswerChoice(int questionPage) {
@@ -744,6 +752,11 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             for (Value v : results) {
                 s = s + v.name + " = " + v.number + ";   ";
             }
+            return s;
+        }
+        public static String valueToString(Value r){
+            String s = "";
+            s = r.name + " = " + r.number + ";   ";
             return s;
         }
     }
