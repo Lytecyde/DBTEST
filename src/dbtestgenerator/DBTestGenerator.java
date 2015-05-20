@@ -48,7 +48,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
     private static Value[][] allValues;
     private static String[] questions;
     private static String[] codeLines;
-    
+
     private static String[][] answerChoiceText;
 
     public static void main(String[] args) {
@@ -151,7 +151,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         }
 
         myFrame.pack();
-        myFrame.setVisible(true);        
+        myFrame.setVisible(true);
 
         //init false all answersGiven
         answersGiven = new boolean[NOFQUESTIONS][NOFMODELS];
@@ -171,7 +171,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         }
 
         //init first Pages question
-        taskQuestion.setText("Q" + questionPage +": "+questions[0]);
+        taskQuestion.setText("Q" + questionPage + ": " + questions[0]);
         splitCodeLines(questions[0]);
 
         for (int i = 0; i < questionCode.length; i++) {
@@ -180,11 +180,9 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         repaint();
 
         //generate model Answers for each question
-        for (int i = 0; i < NOFQUESTIONS; i++) {
+        generateAnswerChoiceTexts();
 
-            generateAnswerChoiceTexts(i);
-
-        }
+        
         //shuffle the answers on each page
         ArrayList answersAList = new ArrayList();
         for (int i = 0; i < NOFQUESTIONS; i++) {
@@ -451,7 +449,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 
     }
 
-    private void convertAssignmentsToallValues(  ) {
+    private void convertAssignmentsToallValues() {
         for (int i = 0; i < NOFQUESTIONS; i++) {
             for (int k = 0; k < 3; k++) {
                 //TODO strins to values
@@ -461,55 +459,43 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                 allValues[i][k]
                         = Value.stringToValue(s);
             }
-        }    
+        }
     }
-    
-  
-    
-    private void generateAnswerChoiceTexts(int questionPage) {
-        String[] code = new String[nofAssignments[questionPage]];
-        //maybe this also works:
-        //code = allValues[questionPage];
+
+    private void generateAnswerChoiceTexts() {
 
         for (int i = 0; i < NOFQUESTIONS; i++) {
             for (int j = 0; j < NOFMODELS; j++) {
 //                Value[] valueArray = new Value[2];
 //                valueArray = model(i, allAssignments[i],  allInstructions[i] );
 //                answerChoiceText[i][j] = valuesToString(valueArray);
-                
-                //for each model take values of every assignment 
+
+                //TODO for each model take values of every assignment 
                 //DONE!    
-                //go through each instruction and evaluate all values of the 
+                //TODO go through each instruction and evaluate all values of the 
                 //question for the given model
-                
-                //output every value of this question to an array 
-                
+                for(int k = 0;k < nofInstructions[i];k++){
+                    
+                }
             }
         }
-
+        //TODO output every value of this question to answerChoiceTexts String
     }
-    
+
     private void generateAllValues() {
         for (int i = 0; i < NOFQUESTIONS; i++) {
             for (int j = 0; j < NOFMODELS; j++) {
                 //allValues[i][j] = allAssignments[i][j];
             }
-        }    
-    }
-    
-    private String valuesToString(Value[] results) {
-        String s = "";
-        for (Value v : results) {
-            s = s + v.name + " = " + v.number + ";   ";
         }
-        return s;
     }
+
+    
 
     private void displayAnswerChoice(int questionPage) {
         for (int i = 0; i < NOFMODELS; i++) {
             answerChoice[i].setText(answerChoiceText[questionPage][i]);
         }
-
     }
 
     public static int getNumber(int index, String[] code) {
@@ -746,12 +732,35 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 
         int number;
         String name;
-        public static Value stringToValue(String[] s){
+
+        public static Value stringToValue(String[] s) {
             Value v = new Value();
             v.number = Integer.parseInt(s[1]);
             v.name = s[0];
             return v;
         }
+        public static String valuesToString(Value[] results) {
+            String s = "";
+            for (Value v : results) {
+                s = s + v.name + " = " + v.number + ";   ";
+            }
+            return s;
+        }
     }
-
+    
+    public static class Instruction{
+        String lhs;
+        String rhs;
+        public Instruction(String l, String r){
+            lhs = l;
+            rhs = r;
+        }
+        public static Instruction stringToInstruction(String s){
+            return new Instruction(s.substring(0,0), s.substring(1, 1));
+        }
+        public static Instruction codeToInstruction(String c){
+            return new Instruction(c.substring(0,0), c.substring(4,4));
+        }
+    }
+    
 }
