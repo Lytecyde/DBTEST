@@ -46,6 +46,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
     private static String[][] allInstructions;
     private static String[][] allAssignments;
     private static Value[][] allValues;
+    private static Value[][] allResultsValues;
     private static String[] questions;
     private static String[] codeLines;
 
@@ -286,7 +287,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                     || (varname1.get(0).equals(varname2.get(0)))
                     || (varname1.get(1).equals(varname2.get(1))));
         }
-        //init variable definitions
+        //init variable definitions AND CREATES allValues[][]
         for (int j = 0; j < nofAssignments[n]; j++) {
             question += "int " + v[j] + " = " + integers[j] + ";";
             String[] s = new String[2];
@@ -470,34 +471,86 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 
     private void generateAnswerChoiceTexts() {
         String[] originalValues = new String[NOFQUESTIONS];
+        String[] optionValues = new String[NOFQUESTIONS];
+        boolean[] construct = new boolean[3];
         for (int i = 0; i < NOFQUESTIONS; i++) {
             for (int j = 0; j < NOFMODELS; j++) {
-//                ArrayList ... Value valueArray = new Value[nofAssignments[i]];
-//                valueArray = model(i, allAssignments[i],  allInstructions[i] );
-                
-                
+                optionValues[i] ="";
                 //TODO for each model take values of every assignment 
                 //DONE!    
                 //TODO assignments by model
-                
-                originalValues[i] ="";
+                //
+                construct = createConstruct(j);
+                create_allResultsValues(construct, i);
                 for(int k = 0;k < nofAssignments[i];k++){
-                    originalValues[i] += allValues[i][k].name + " = "+ allValues[i][k].number + ";";
+                    String name = allValues[i][k].name;
+                    String number = Integer.toString(allValues[i][k].number);
+                    optionValues[i] +=  name + " = "+ number + ";";
                 }
-                answerChoiceText[i][j] = originalValues[i];
+                answerChoiceText[i][j] = optionValues[i];
             }
         }
         //TODO output every value of this question to answerChoiceTexts String
     }
-//TODO remove: done in   
-//    private void generateAllValues() {
-//        for (int i = 0; i < NOFQUESTIONS; i++) {
-//            for (int j = 0; j < NOFMODELS; j++) {
-//                //allValues[i][j] = allAssignments[i][j];
-//            }
-//        }
-//    }
     
+    private void create_allResultsValues(boolean[] construct, int questionIndex){
+        
+    }
+    
+    private boolean[] createConstruct(int modelNumber){
+        boolean[] construct = new boolean[3];  
+        //0 -- add
+        //1 -- left/right
+        //2 -- lose value
+        switch (modelNumber){
+            case 0:
+                construct[0] =false;
+                construct[1] =false;
+                construct[2] =false;
+                break;
+            case 1:
+                construct[0] =false;
+                construct[1] =false;
+                construct[2] =true;
+                break;
+            case 2:
+                construct[0] =false;
+                construct[1] =true;
+                construct[2] =false;
+                break;
+            case 3:
+                construct[0] =false;
+                construct[1] =true;
+                construct[2] =true;
+                break;
+            case 4:
+                construct[0] =true;
+                construct[1] =false;
+                construct[2] =false;
+                break;
+            case 5:
+                construct[0] =true;
+                construct[1] =false;
+                construct[2] =true;
+                break;
+            case 6:
+                construct[0] =true;
+                construct[1] =true;
+                construct[2] =false;
+                break;
+            case 7:
+                construct[0] =true;
+                construct[1] =true;
+                construct[2] =true;
+                break;
+            default :
+                System.out.println("not an assignment");
+                construct = null;
+                break;
+        }
+        
+        return construct;
+    }
     
 
     private void displayAnswerChoice(int questionPage) {
