@@ -43,10 +43,10 @@ public class DBTestGenerator extends JFrame implements ActionListener {
     private static int[] nofAssignments = {2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3};
     private static boolean[][] answersGiven;
     private static ArrayList[] answerOptions;// add allResults to shuffle them for presentation
-    private static String[][] allInstructions;
+    private static Instruction[][] allInstructions;
     private static String[][] allAssignments;
     private static Value[][] allValues;
-    private static Value[][] allResultsValues;
+    private static Value[][][] allResultsValues;
     private static String[] questions;
     private static String[] codeLines;
 
@@ -165,12 +165,22 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         codeLines = new String[questionCode.length];
         questions = new String[NOFQUESTIONS];
         allValues = new Value[NOFQUESTIONS][3];
+        allResultsValues = new Value[NOFQUESTIONS][NOFMODELS][3];
+        allInstructions = new Instruction[NOFQUESTIONS][3];
         for (int n = 0; n < NOFQUESTIONS; n++) {
             questions[n] = generateQuestion(n);
             //System.out.println("C3 page n:" + n);
             splitCodeLines(questions[n]);
         }
-
+        
+        //init allResultsValues
+        for(int i = 0;i < NOFQUESTIONS;i++){
+            for (int j = 0; j < NOFMODELS;j++){
+                for (int k = 0; k < nofAssignments[i];k++){
+                    allResultsValues[i][j][k] = new Value();
+                }
+            }                   
+        }
         //init first Pages question
         taskQuestion.setText("Q" + questionPage + ": " + questions[0]);
         splitCodeLines(questions[0]);
@@ -262,11 +272,11 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         }
         //create the first list    
         varname1.add(v[0]);
-        if (v[1] != v[0]) {
+        if (!v[1].equals(v[0])) {
             varname1.add(v[1]);
         }
         if (nofAssignments[n] > 2) {
-            if (v[1] != v[2] && v[0] != v[2]) {
+            if (!v[1].equals(v[2]) && !v[0].equals(v[2])) {
                 varname1.add(v[2]);
             }
         }
@@ -298,9 +308,13 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         question += " ;";
 
         //init instructions
-        //TODO: number of sequences not of variables
+        //
         for (int i = 0; i < nofInstructions[n]; i++) {
             question += varname1.get(i) + " = " + varname2.get(i) + ";";
+            String left =(String)varname1.get(i);
+            String right =(String)varname2.get(i);
+            allInstructions[n][i] = new Instruction(left,right);
+            
         }
         for (int i = 0; i < (7 - (nofAssignments[n] + 1 + nofInstructions[n])); i++) {
             question += " ;";
@@ -318,7 +332,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object obj = e.getSource();
         if ((obj) == (clearAll)) {
-            System.out.println("C4: getting to clear it all up for this page");
+            //System.out.println("C4: getting to clear it all up for this page");
             for (int i = 0; i < NOFMODELS; i++) {
                 ans[i].setSelected(false);
                 answersGiven[questionPage][i] = false;
@@ -470,9 +484,10 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 //    }
 
     private void generateAnswerChoiceTexts() {
-        String[] originalValues = new String[NOFQUESTIONS];
+        
         String[] optionValues = new String[NOFQUESTIONS];
         boolean[] construct = new boolean[3];
+        
         for (int i = 0; i < NOFQUESTIONS; i++) {
             for (int j = 0; j < NOFMODELS; j++) {
                 optionValues[i] ="";
@@ -481,10 +496,10 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                 //TODO assignments by model
                 //
                 construct = createConstruct(j);
-                create_allResultsValues(construct, i);
-                for(int k = 0;k < nofAssignments[i];k++){
-                    String name = allValues[i][k].name;
-                    String number = Integer.toString(allValues[i][k].number);
+                create_ResultsValues(construct, i, j);
+                for(int k = 0;k < nofAssignments[i];k++){                    
+                    String name = allResultsValues[i][j][k].name;
+                    String number = Integer.toString(allResultsValues[i][j][k].number);
                     optionValues[i] +=  name + " = "+ number + ";";
                 }
                 answerChoiceText[i][j] = optionValues[i];
@@ -493,8 +508,56 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         //TODO output every value of this question to answerChoiceTexts String
     }
     
-    private void create_allResultsValues(boolean[] construct, int questionIndex){
+    private void create_ResultsValues(boolean[] construct, int questionIndex,
+        int modelId){
+        Value[][] originalValues = new Value[NOFQUESTIONS][3];
+        Value[] resultingValues = new Value[3];
+        for(int k = 0;k < nofAssignments[questionIndex];k++){
+            resultingValues[k] = originalValues[questionIndex][k]; 
+        }
         
+        Instruction[] currentInstructions = new Instruction[3];
+        int v = 0;
+        String s = ""; 
+        final int ADD = 0;
+        final int DIRECTION = 1;
+        final int LOSE = 2;        
+        if(construct != null){
+            //get 
+            for(int a = 0;a < nofAssignments[questionIndex];a++){
+                originalValues[questionIndex][a] = allValues[questionIndex][a];                
+            }
+            //get all instructions
+            for(int k = 0;k < nofInstructions[questionIndex];k++){
+                currentInstructions[k] = allInstructions[questionIndex][k];
+            }
+            //apply construct on the instructions  changing originalValues
+            //       
+            for(int k = 0;k < nofInstructions[questionIndex];k++){
+                if(construct[DIRECTION]){
+                    //find the int value  of the name in the instruction
+                    for(int m = 0;m < nofAssignments[questionIndex];m++){
+                        s = currentInstructions[k].lhs;
+                        if(originalValues[questionIndex][m].findNumber(s)>0){
+                            v = originalValues[questionIndex][m].findNumber(s);                            
+                        }
+                    }                     
+                }
+                if(construct[ADD]);
+                if(construct[LOSE]);
+                
+                
+            }
+            
+        }else{
+            //3 options
+        }
+        //TODO add resultingValues to allResultValues
+        for(int k = 0;k < nofAssignments[questionIndex];k++){
+            resultingValues[k].number = v;
+                resultingValues[k].name = s;
+            allResultsValues[questionIndex][modelId][k] = resultingValues[k] ;
+        }        
     }
     
     private boolean[] createConstruct(int modelNumber){
@@ -791,8 +854,8 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 
     public static class Value {
 
-        int number;
-        String name;
+        static int number;
+        static String name;
 
         public static Value stringToValue(String[] s) {
             Value v = new Value();
@@ -812,6 +875,12 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             s = r.name + " = " + r.number + ";   ";
             return s;
         }
+        public static int findNumber(String n){
+            if(n.equals(name)){
+                return number;
+            }
+            else return 0;
+        }
     }
     
     public static class Instruction{
@@ -821,11 +890,15 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             lhs = l;
             rhs = r;
         }
+        public Instruction(){
+            lhs = "";
+            rhs = "";
+        }
         public static Instruction stringToInstruction(String s){
-            return new Instruction(s.substring(0,0), s.substring(1, 1));
+            return new Instruction(s.substring(0,1), s.substring(1, 2));
         }
         public static Instruction codeToInstruction(String c){
-            return new Instruction(c.substring(0,0), c.substring(4,4));
+            return new Instruction(c.substring(0,1), c.substring(4,5));
         }
     }
     
