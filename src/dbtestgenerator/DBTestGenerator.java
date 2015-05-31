@@ -511,7 +511,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         //get first variable name based on direction
         //get second variable name convert to number
         //if add add to second variable
-        //  else replace second variable
+        //else replace second variable
         //if lose lose number of first variable
 
         Value[][] originalValues = new Value[NOFQUESTIONS][3];
@@ -543,7 +543,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         int v = -2;//value
         String vn = ""; //variable name
         int oppositev = 0;
-        String oppositeVN = "";
+        String oppositeVariableName = "";
         final int ADD = 0;
         final int DIRECTION = 1;
         final int LOSE = 2;
@@ -558,22 +558,24 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             }
             for (int p = 0; p < nofAssignments[questionIndex]; p++) {
                 //apply construct on the instructions using originalValues
+                boolean wasAdded = false;
                 for (int k = 0; k < nofInstructions[questionIndex]; k++) {
+                    
                     if (construct[DIRECTION] == true) {
                         //find the int value  of the name in the instruction
                         vn = currentInstructions[k].getLeft();
                         //search for the var number of vn
                         for (int m = 0; m < nofAssignments[questionIndex]; m++) {
                             if (originalValues[questionIndex][m].name.equals(vn)) {
-                                v = originalValues[questionIndex][m].number;
+                                v = resultingValues[m].number;
                                 //System.out.println("@DIRECTION left to right ");
                             }
                             System.out.println("var number " + v);
                         }
-                        oppositeVN = currentInstructions[k].getRight();
+                        oppositeVariableName = currentInstructions[k].getRight();
                         for (int t = 0; t < nofAssignments[questionIndex]; t++) {
-                            Value rightValue = originalValues[questionIndex][t];
-                            if (rightValue.name.equals(oppositeVN)) {
+                            Value rightValue = resultingValues[t];
+                            if (rightValue.name.equals(oppositeVariableName)) {
                                 oppositev = rightValue.number;
                                 //System.out.println("@DIRECTION right to left");
                             }
@@ -585,76 +587,110 @@ public class DBTestGenerator extends JFrame implements ActionListener {
 
                         vn = currentInstructions[k].getRight();
                         for (int t = 0; t < nofAssignments[questionIndex]; t++) {
-                            Value rightValue = originalValues[questionIndex][t];
+                            Value rightValue = resultingValues[t];
                             if (rightValue.name.equals(vn)) {
                                 v = rightValue.number;
                                 //System.out.println("@DIRECTION right to left");
                             }
                             System.out.println("var number " + v);
                         }
-                        oppositeVN = currentInstructions[k].getLeft();
-                        //search for the var number of vn
+                        oppositeVariableName = currentInstructions[k].getLeft();
+                        //search for the var number of oppositevn
                         for (int m = 0; m < nofAssignments[questionIndex]; m++) {
-                            if (originalValues[questionIndex][m].name.equals(oppositeVN)) {
-                                oppositev = originalValues[questionIndex][m].number;
-                                //System.out.println("@DIRECTION left to right ");
-                            }
-                            System.out.println("opposite var number " + v);
+                            if (originalValues[questionIndex][m].name.equals(oppositeVariableName)) {
+                                oppositev = resultingValues[m].number;
+                                System.out.println("oppositevalue" + oppositev);
+                            }                            
                         }
 
+                    } else {
+                    }
+                    
+                    if (construct[LOSE]) {
+                        //zero the first value of the instruction depending on direction
+                        if (construct[DIRECTION]) {
+                            String losableValueName = currentInstructions[k].getRight();
+                            for (int m = 0; m < nofAssignments[questionIndex]; m++) {
+                                if (originalValues[questionIndex][m].name.equals(losableValueName)) {
+                                    System.out.println("LOSE var number " +resultingValues[m].name +resultingValues[m].number);
+                                    resultingValues[m].number = 0;
+                                    //System.out.println("@DIRECTION left to right "); 
+                                }
+                            }
+                        } else if (construct[DIRECTION] == false) {
+                            String losableValueName = currentInstructions[k].getLeft();
+                            for (int m = 0; m < nofAssignments[questionIndex]; m++) {
+                                if (originalValues[questionIndex][m].name.equals(losableValueName)) {
+                                    System.out.println("LOSE var number " +resultingValues[m].name +resultingValues[m].number);
+                                    resultingValues[m].number = 0;                                    
+                                }
+                            }
+                        }                        
+                    } else if (construct[LOSE] == false) {
+                        //normal assignments 
+                        //no code here
                     }
                     if (construct[ADD]) {
                         int addable = 0;
                         //get the value of addable
-                        addable = oppositev;
-                        //System.out.println("CONsTRUCT add :" + addable);
-                        v = v + addable;
-
+                        if (construct[DIRECTION] == false){
+                            oppositeVariableName = currentInstructions[k].getLeft();
+                            //search for the var number of oppositevn
+                            for (int m = 0; m < nofAssignments[questionIndex]; m++) {
+                                if (originalValues[questionIndex][m].name.equals(oppositeVariableName)) {
+                                    addable = resultingValues[m].number;
+                                    if(wasAdded ==false){
+                                        v = v + addable;
+                                        wasAdded = true;
+                                    }
+                                    System.out.println("ADD:oppositevalue" + addable);
+                                }                            
+                            }
+                        }
+                        else if (construct[DIRECTION]){
+                            oppositeVariableName = currentInstructions[k].getRight();
+                            //search for the var number of oppositevn
+                            for (int m = 0; m < nofAssignments[questionIndex]; m++) {
+                                if (originalValues[questionIndex][m].name.equals(oppositeVariableName)) {
+                                    addable = resultingValues[m].number;
+                                    if(wasAdded ==false){
+                                        v = v + addable;
+                                        wasAdded = true;
+                                    }
+                                    System.out.println("ADD:oppositevalue" + addable);
+                                }                            
+                            }
+                        }System.out.println("CONSTRUCT add :" + addable);
+                        
+                        
                     } else if (construct[ADD] == false) {
                         //nothing to add
                         //no code here
                     }
-                    if (construct[LOSE]) {
-                        //zero the first value of the instruction depending on direction
-                        if (construct[DIRECTION]) {
-                            String losableValueName = currentInstructions[k].getLeft();
-                            for (int m = 0; m < nofAssignments[questionIndex]; m++) {
-                                if (originalValues[questionIndex][m].name.equals(losableValueName)) {
-                                    resultingValues[m].number = 0;
-                                    //System.out.println("@DIRECTION left to right ");
-                                }
-                                System.out.println("losable var number " + v);
-                            }
-                        }
-                        else{
-                            String losableValueName = currentInstructions[k].getRight();
-                            for (int m = 0; m < nofAssignments[questionIndex]; m++) {
-                                if (originalValues[questionIndex][m].name.equals(losableValueName)) {
-                                    resultingValues[m].number = 0;
-                                    //System.out.println("@DIRECTION left to right ");
-                                }
-                                System.out.println("losable var number " + v);
-                            }
-                        }
-
-                    } else if (construct[LOSE] == false) {
-                        //normal assignments 
-                        //no code here
-                    } else {
-                        //3 options
-                    }
+                    //copy values to resultingValues
                     if (v >= 0) {
                         resultingValues[p].number = v;
                         //vn has to be the same as list of allValues[questionIndex][] of this question
                         resultingValues[p].name = allValues[questionIndex][p].name;
                         allResultsValues[questionIndex][modelId][p] = resultingValues[p];
 
+                    } else {
                     }
+                    //zero values
+                    v = -2;
+                    vn = "";
+                    oppositev = -2;
                 }
 
             }
+
+            System.out.println("end of calculating variables");
+        } else {
+            //3 options:
+            //swap
+            //equality
+            //no change
         }
-        //TODO add resultingValues to allResultValues
 
     }
 
@@ -663,46 +699,49 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         //0 -- add
         //1 -- left/right
         //2 -- lose value
+        final int ADD = 0;
+        final int DIRECTION = 1;
+        final int LOSE = 2;
         switch (modelNumber) {
             case 0:
-                construct[0] = false;
-                construct[1] = false;
-                construct[2] = false;
+                construct[ADD] = false;
+                construct[DIRECTION] = false;
+                construct[LOSE] = false;
                 break;
             case 1:
-                construct[0] = false;
-                construct[1] = false;
-                construct[2] = true;
+                construct[ADD] = false;
+                construct[DIRECTION] = false;
+                construct[LOSE] = true;
                 break;
             case 2:
-                construct[0] = false;
-                construct[1] = true;
+                construct[ADD] = false;
+                construct[DIRECTION] = true;
                 construct[2] = false;
                 break;
             case 3:
-                construct[0] = false;
-                construct[1] = true;
-                construct[2] = true;
+                construct[ADD] = false;
+                construct[DIRECTION] = true;
+                construct[LOSE] = true;
                 break;
             case 4:
-                construct[0] = true;
-                construct[1] = false;
-                construct[2] = false;
+                construct[ADD] = true;
+                construct[DIRECTION] = false;
+                construct[LOSE] = false;
                 break;
             case 5:
-                construct[0] = true;
-                construct[1] = false;
-                construct[2] = true;
+                construct[ADD] = true;
+                construct[DIRECTION] = false;
+                construct[LOSE] = true;
                 break;
             case 6:
-                construct[0] = true;
-                construct[1] = true;
-                construct[2] = false;
+                construct[ADD] = true;
+                construct[DIRECTION] = true;
+                construct[LOSE] = false;
                 break;
             case 7:
-                construct[0] = true;
-                construct[1] = true;
-                construct[2] = true;
+                construct[ADD] = true;
+                construct[DIRECTION] = true;
+                construct[LOSE] = true;
                 break;
             default:
                 System.out.println("not an assignment");
@@ -714,8 +753,24 @@ public class DBTestGenerator extends JFrame implements ActionListener {
     }
 
     private void displayAnswerChoice(int questionPage) {
+        boolean[] construction = {true, true, true};
+        String[] constructOptions = {
+            "ADD","NORMAL",
+            "Left2Right","Right2Left",
+            "LOSE","KEEP"
+        };
+        String[] constr = new String[3];
+        constr[0] ="";  
+        constr[1] ="";  
+        constr[2] ="";  
         for (int i = 0; i < NOFMODELS; i++) {
-            answerChoice[i].setText(answerChoiceText[questionPage][i]);
+            construction = createConstruct(i);
+            constr[0]= (construction[0])?constructOptions[0]:constructOptions[1];
+            constr[1]= (construction[1])?constructOptions[2]:constructOptions[3];
+            constr[2]= (construction[2])?constructOptions[4]:constructOptions[5];
+            String answerwithconstruct = answerChoiceText[questionPage][i]
+                    + constr[0] + constr[1] + constr[2];
+            answerChoice[i].setText(answerwithconstruct);
         }
     }
 
