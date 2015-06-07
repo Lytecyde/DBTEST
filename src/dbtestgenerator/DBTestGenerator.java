@@ -533,134 +533,173 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             originalValues[questionIndex][a].number = valueOrig;
         }
         Value[] resultingValues = new Value[3];
-        resultingValues[0] = new Value();
-        resultingValues[1] = new Value();
-        resultingValues[2] = new Value();
+        
+        
+        Value[] currentValues = new Value[nofAssignments[questionIndex]];
         for (int k = 0; k < nofAssignments[questionIndex]; k++) {
+            currentValues[k] = originalValues[questionIndex][k];
             resultingValues[k] = originalValues[questionIndex][k];
         }
-
         Instruction[] currentInstructions = new Instruction[3];
         currentInstructions[0] = new Instruction();
         currentInstructions[1] = new Instruction();
         currentInstructions[2] = new Instruction();
-        int v = -2;//value
-        String vn = ""; //variable name
-        int oppositeVariableNumber = 0;
-        String oppositeVariableName = "";
+
         String zeroed = "";
         String currentLeftName = "";
         String currentRightName = "";
         int currentLeftNumber = -2;
         int currentRightNumber = -2;
-        int p = 0;
+        String startingLeftName ="";
+        String startingRightName ="";
+        Value startingLeftValue = new Value();
+        Value startingRightValue = new Value();
         if (construct != null) {
 
-            //get all instructions
+            //get all instructions for this question
             for (int k = 0; k < nofInstructions[questionIndex]; k++) {
                 currentInstructions[k] = allInstructions[questionIndex][k];
                 System.out.println("Instructions Q" + questionIndex + ":  "
                         + currentInstructions[k].lhs
                         + currentInstructions[k].rhs);
             }
-            for (int t = 0; t < nofAssignments[questionIndex]; t++) {
-                //apply construct on the instructions using originalValues
 
-                for (int k = 0; k < nofInstructions[questionIndex]; k++) {
+            //apply construct on the instructions using originalValues to begin with
+            for (int k = 0; k < nofInstructions[questionIndex]; k++) {
                     //zero values
-                    v = -2;
-                    vn = "";
+                    
                     zeroed = "";
-                    currentLeftName = currentInstructions[k].lhs;
+                    //get instruction left Value.name
+                    startingLeftValue.name = currentInstructions[k].lhs;
+                    //get instruction left Value.number
                     for (int m = 0; m < nofAssignments[questionIndex]; m++) {
-                        if (originalValues[questionIndex][m].name.equals(currentLeftName)) {
-                            currentLeftNumber = resultingValues[m].number;
+                        if (originalValues[questionIndex][m].name.equals(startingLeftValue.name)) {
+                            startingLeftValue.number = resultingValues[m].number;
                             //System.out.println("@DIRECTION left to right ");
                         }
-
-                    }
-
-                    currentRightName = currentInstructions[k].rhs;
+                    } 
+                    //get instructions right  Value.name
+                    startingRightValue.name = currentInstructions[k].rhs;
+                    //get instruction right 
                     for (int m = 0; m < nofAssignments[questionIndex]; m++) {
-                        if (originalValues[questionIndex][m].name.equals(currentRightName)) {
-                            currentRightNumber = resultingValues[m].number;
+                        if (originalValues[questionIndex][m].name.equals(startingRightValue.name)) {
+                            startingRightValue.number = resultingValues[m].number;
                             //System.out.println("@DIRECTION left to right ");
                         }
-
                     }
                     //main logic block----------------------------------------------
-                    if (construct[DIRECTION] == true) {
+                    if (construct[DIRECTION] == false) {
                         if (construct[ADD]) {
                             if (construct[LOSE]) {
-                                currentRightNumber = currentLeftNumber
-                                        + currentRightNumber;
-                                zeroed = currentLeftName;
+                                currentRightNumber = startingLeftValue.number
+                                        + startingRightValue.number;
+                                zeroed = startingLeftValue.name;
+                                
                                 System.out.println("Model:0");
                             } else if (construct[LOSE] == false) {
-                                currentRightNumber = currentLeftNumber
-                                        + currentRightNumber;
+                                currentRightNumber = startingLeftValue.number
+                                        + startingRightValue.number;
                                 System.out.println("Model:1");
                             } else;
                         } else if (construct[ADD] == false) {
                             if (construct[LOSE]) {
-                                currentRightNumber = currentLeftNumber;
-                                zeroed = currentLeftName;
-                                System.out.println("Model:2");
+                                currentRightNumber = startingLeftValue.number;
+                                zeroed = startingLeftValue.name;
+                                
+                                System.out.println("Model:4");
                             } else if (construct[LOSE] == false) {
-                                currentRightNumber = currentLeftNumber;
-                                System.out.println("Model:3");
+                                currentRightNumber = startingLeftValue.number;
+                                System.out.println("Model:5");
                             }
                         }
-                        v = currentRightNumber;
-                        vn = currentRightName;
-                    } else if (construct[DIRECTION] == false) {
+                        
+                        //find right name from the currentValues
+                        int indexRight = findValue(startingRightValue, currentValues);
+                        //assign right currentRightNumber to currentValues
+                        assert indexRight >= 0;
+                        currentValues[indexRight].number = currentRightNumber; 
+                        indexRight = -1;
+                        //find left name from the currentValues
+                        int indexLeft = findValue(startingLeftValue, currentValues);
+                        assert indexLeft >= 0;
+                        //assign left cuurent number to currentValues
+                        currentValues[indexLeft].number = startingLeftValue.number;
+                        indexLeft = -1;                        
+                        if (!zeroed.equals("")) {
+                            for (int x = 0; x < nofAssignments[questionIndex]; x++) {
+                                if (currentValues[x].name.equals(zeroed)) {
+                                    currentValues[x].number = 0;
+                                    //System.out.println("@DIRECTION left to right ");
+                                }
+                            }
+                        } else;
+                        
+                    } else if (construct[DIRECTION] == true) {
                         //find the int value  of the name in the instruction
                         if (construct[ADD]) {
                             if (construct[LOSE]) {
-                                currentLeftNumber = currentRightNumber
-                                        + currentLeftNumber;
-                                zeroed = currentRightName;
-                                System.out.println("Model:4");
+                                currentLeftNumber = startingRightValue.number
+                                        + startingLeftValue.number;
+                                zeroed = startingRightValue.name;
+                                
+                                System.out.println("Model:2");
                             } else if (construct[LOSE] == false) {
-                                currentLeftNumber = currentRightNumber
-                                        + currentLeftNumber;
-                                System.out.println("Model:5");
+                                currentLeftNumber = startingRightValue.number
+                                        + startingLeftValue.number;
+                                System.out.println("Model:3");
                             } else;
                         } else if (construct[ADD] == false) {
                             if (construct[LOSE]) {
-                                currentLeftNumber = currentRightNumber;
-                                zeroed = currentRightName;
+                                currentLeftNumber = startingRightValue.number;
+                                zeroed = startingRightValue.name;
+                                
                                 System.out.println("Model:6");
                             } else if (construct[LOSE] == false) {
-                                currentLeftNumber = currentRightNumber;
+                                currentLeftNumber = startingRightValue.number;
                                 System.out.println("Model:7");
                             }
                         } else;
-                        v = currentLeftNumber;
-                        vn = currentLeftName;
-
-                    } else;
-
-                    if (v >= 0) {//copy numbers to resultingValues
-
-                        //vn has to be the same as list of allValues[questionIndex][] of this question
-                        resultingValues[t].name = allValues[questionIndex][t].name;
-                        resultingValues[t].number = v;
-                        if (zeroed != "") {
+                        
+                        
+                        //find left name from the currentValues
+                        int indexLeft = findValue(startingLeftValue, currentValues);
+                        assert indexLeft >= 0;
+                        //assign left cuurent number to currentValues
+                        currentValues[indexLeft].number = currentLeftNumber;
+                        indexLeft = -1;                        
+                                                
+                        //find right name from the currentValues
+                        int indexRight = findValue(startingRightValue, currentValues);
+                        //assign right currentRightNumber to currentValues
+                        assert indexRight >= 0;
+                        currentValues[indexRight].number = startingRightValue.number; 
+                        indexRight = -1;
+                        if (!zeroed.equals("")) {
                             for (int x = 0; x < nofAssignments[questionIndex]; x++) {
-                                if (resultingValues[x].name.equals(zeroed)) {
-                                    resultingValues[x].number = 0;
+                                if (currentValues[x].name.equals(zeroed)) {
+                                    currentValues[x].number = 0;
                                     //System.out.println("@DIRECTION left to right ");
                                 }
-
                             }
-                            
-                        }
-                        else;
+                        } else;
+                        
+                    } else;
+                    
+                
+                //set resultingValues values to currentValues
+                for (int t = 0; t < nofAssignments[questionIndex]; t++) {
+                    if (currentValues[t].number >= 0) {//copy numbers to resultingValues
+                        //vn has to be the same as list of allValues[questionIndex][] of this question
+                        resultingValues[t].name = currentValues[t].name;
+                        resultingValues[t].number = currentValues[t].number;
+//                        
                         allResultsValues[questionIndex][modelId][t] = resultingValues[t];
                     }
                 }
+
             }
+            //set resultingValues based on the last current Values
+            
             System.out.print("END of calculating Model" + modelId + ": ");
             for (int z = 0; z < nofAssignments[questionIndex]; z++) {
                 System.out.println("RESULTS:" + resultingValues[z].name
@@ -676,7 +715,15 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         }
 
     }
-
+    private int findValue(Value saught, Value[] allValues ){
+        int index = -1;
+        for(int t = 0; t < allValues.length; t++){
+            if(saught.name.equals(allValues[t].name))index = t;
+        }    
+        return index;
+    }
+    
+    
     private boolean[] createConstruct(int modelNumber) {
         boolean[] construct = new boolean[3];
         //0 -- add
