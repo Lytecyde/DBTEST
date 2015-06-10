@@ -356,6 +356,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                 ans[i].setSelected(false);
                 answersGiven[questionPage][i] = false;
             }
+            //unlock
             myFrame.repaint();
         } else if ((obj) == (next)) {
 
@@ -447,22 +448,36 @@ public class DBTestGenerator extends JFrame implements ActionListener {
             }
         } else if (obj == (finish)) {
             //check if sure ok and cancel
+            int[] ansList = {99,99,99,99,99,99,99,99,99,99,99,99};
+            
             for (int page = 0; page < NOFQUESTIONS; page++) {
                 for (int q = 0; q < NOFMODELS; q++) {
-                    System.out.println("answers given page:" + page + " " + answersGiven[page][q]);;
+                    System.out.println("answers given on page:" + page + ": " + answersGiven[page][q]);
+                    if(answersGiven[page][q]){
+                        ansList[page] = q;
+                    }
                 }
             }
-
-            score();
+            score(ansList);
             //write score to file
-            //myFrame.dispose();
+            myFrame.dispose();
         }
 
     }
 
-    private void score() {
+    private void score(int answerList[]) {
         //count the consiistency of the most represented model
-
+        int countCorrectAnswers[] = {0,0,0,0,0,0,0,0,0,0,0,0};
+        
+        for(int i = 0;i < NOFQUESTIONS;i++ ){
+            for(int j = 0; j < NOFQUESTIONS;j++){
+                if( (answerList[j] == i)){
+                    countCorrectAnswers[i]++;
+                }
+            }
+            System.out.println("ANSWER "+i +":  "+ Integer.toString(countCorrectAnswers[i]));
+        }
+        
     }
 
     private void getPage(int questionPage) {
@@ -546,12 +561,12 @@ public class DBTestGenerator extends JFrame implements ActionListener {
         currentInstructions[2] = new Instruction();
 
         String zeroed = "";
-        String currentLeftName = "";
-        String currentRightName = "";
+//        String currentLeftName = "";
+//        String currentRightName = "";
         int currentLeftNumber = -2;
         int currentRightNumber = -2;
-        String startingLeftName ="";
-        String startingRightName ="";
+//        String startingLeftName ="";
+//        String startingRightName ="";
         Value startingLeftValue = new Value();
         Value startingRightValue = new Value();
         if (construct != null) {
@@ -588,7 +603,7 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                         }
                     }
                     //main logic block----------------------------------------------
-                    if (construct[DIRECTION] == false) {
+                    if (construct[DIRECTION] == true) {
                         if (construct[ADD]) {
                             if (construct[LOSE]) {
                                 currentRightNumber = startingLeftValue.number
@@ -634,13 +649,13 @@ public class DBTestGenerator extends JFrame implements ActionListener {
                             }
                         } else;
                         
-                    } else if (construct[DIRECTION] == true) {
+                    } else if (construct[DIRECTION] == false) {
                         //find the int value  of the name in the instruction
                         if (construct[ADD]) {
                             if (construct[LOSE]) {
                                 currentLeftNumber = startingRightValue.number
                                         + startingLeftValue.number;
-                                zeroed = startingRightValue.name;
+                                zeroed = startingRightValue.name;//CHECK:kas on õige pool!!!
                                 
                                 System.out.println("Model:2");
                             } else if (construct[LOSE] == false) {
